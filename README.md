@@ -2,23 +2,15 @@
 
 ## Overview
 
-This project is a PHP website integrated with PostgreSQL, serving as a project management tool.
-
-**Final Project: Project Management Tool**  
-**Made By:** Matthews Wong (12202010)
-
-## Content
-
-1. [ERD](#erd)
-2. [DDL Query of creating table](#ddl-query-of-creating-table)
-3. [All PL/pgSQL CRUD Functions](#all-plpgsql-crud-functions)
-4. [PL/pgSQL Triggers](#plpgsql-triggers)
+This project is a PHP website integrated with PostgreSQL, serving as a project management tool. It allows users to create projects, assign tasks, manage teams, and track progress.
 
 ## ERD
 
-[ERD Placeholder]
+You can find the Entity-Relationship Diagram (ERD) of the project [here](https://github.com/MatthewsWongOfficial/project_management_tool/blob/main/Project%20Management%20Tool%20ERD%20-%20Matthews%20Wong.drawio%20(1).png?raw=true).
 
-## DDL Query of creating table
+## DDL Query of creating tables
+
+Below are the Data Definition Language (DDL) queries to create the necessary tables in PostgreSQL:
 
 ```sql
 -- Users Table
@@ -70,11 +62,9 @@ ALTER TABLE Tasks ADD COLUMN overdue BOOLEAN DEFAULT FALSE;
 
 ALTER TABLE Tasks ADD COLUMN last_assigned_to INT;
 
-## PL/pgSQL CRUD Functions
+## All PL/pgSQL CRUD Functions
+-- Users Table CRUD Functions
 
-### Users Table
-
-```sql
 -- Create User
 CREATE OR REPLACE FUNCTION create_user(_username VARCHAR, _email VARCHAR, _password VARCHAR)
 RETURNS void AS $$
@@ -83,7 +73,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Read User
+-- Read Users
 CREATE OR REPLACE FUNCTION read_user(_user_id INT)
 RETURNS TABLE(user_id INT, username VARCHAR, email VARCHAR, created_at TIMESTAMP) AS $$
 BEGIN
@@ -106,3 +96,159 @@ BEGIN
     DELETE FROM Users WHERE user_id = _user_id;
 END;
 $$ LANGUAGE plpgsql;
+
+-- Projects Table CRUD Functions
+
+-- Create Project
+CREATE OR REPLACE FUNCTION create_project(_project_name VARCHAR, _start_date DATE, _end_date DATE, _manager_id INT)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO Projects (project_name, start_date, end_date, manager_id) VALUES (_project_name, _start_date, _end_date, _manager_id);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Read Project
+CREATE OR REPLACE FUNCTION read_project(_project_id INT)
+RETURNS TABLE(project_id INT, project_name VARCHAR, start_date DATE, end_date DATE, manager_id INT) AS $$
+BEGIN
+    RETURN QUERY SELECT project_id, project_name, start_date, end_date, manager_id FROM Projects WHERE project_id = _project_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Update Project
+CREATE OR REPLACE FUNCTION update_project(_project_id INT, _project_name VARCHAR, _start_date DATE, _end_date DATE, _manager_id INT)
+RETURNS void AS $$
+BEGIN
+    UPDATE Projects SET project_name = _project_name, start_date = _start_date, end_date = _end_date, manager_id = _manager_id WHERE project_id = _project_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Delete Project
+CREATE OR REPLACE FUNCTION delete_project(_project_id INT)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM Projects WHERE project_id = _project_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Tasks Table CRUD Functions
+
+-- Create Task
+CREATE OR REPLACE FUNCTION create_task(_task_name VARCHAR, _project_id INT, _assigned_to INT, _due_date DATE, _status VARCHAR)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO Tasks (task_name, project_id, assigned_to, due_date, status) VALUES (_task_name, _project_id, _assigned_to, _due_date, _status);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Read Tasks
+CREATE OR REPLACE FUNCTION read_task(_task_id INT)
+RETURNS TABLE(task_id INT, task_name VARCHAR, project_id INT, assigned_to INT, due_date DATE, status VARCHAR) AS $$
+BEGIN
+    RETURN QUERY SELECT Tasks.task_id, Tasks.task_name, Tasks.project_id, Tasks.assigned_to, Tasks.due_date, Tasks.status FROM Tasks WHERE Tasks.task_id = _task_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Update Task
+CREATE OR REPLACE FUNCTION update_task(_task_id INT, _task_name VARCHAR, _project_id INT, _assigned_to INT, _due_date DATE, _status VARCHAR)
+RETURNS void AS $$
+BEGIN
+    UPDATE Tasks SET task_name = _task_name, project_id = _project_id, assigned_to = _assigned_to, due_date = _due_date, status = _status WHERE task_id = _task_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Delete Task
+CREATE OR REPLACE FUNCTION delete_task(_task_id INT)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM Tasks WHERE task_id = _task_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Teams Table CRUD Functions
+
+-- Create team
+CREATE OR REPLACE FUNCTION create_team(_team_name VARCHAR, _lead_id INT)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO Teams (team_name, lead_id) VALUES (_team_name, _lead_id);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Read Team
+CREATE OR REPLACE FUNCTION read_team(_team_id INT)
+RETURNS TABLE(team_id INT, team_name VARCHAR, lead_id INT) AS $$
+BEGIN
+    RETURN QUERY SELECT Teams.team_id, Teams.team_name, Teams.lead_id FROM Teams WHERE Teams.team_id = _team_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Update Team
+CREATE OR REPLACE FUNCTION update_team(_team_id INT, _team_name VARCHAR, _lead_id INT)
+RETURNS void AS $$
+BEGIN
+    UPDATE Teams SET team_name = _team_name, lead_id = _lead_id WHERE team_id = _team_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Delete Team
+CREATE OR REPLACE FUNCTION delete_team(_team_id INT)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM Teams WHERE team_id = _team_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--PL/pgSQL Triggers
+-- Trigger 1: Auto-Update Task Status on Due Date
+-- Trigger Function
+CREATE OR REPLACE FUNCTION check_task_due_date()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.due_date < CURRENT_DATE AND NEW.status != 'Completed' THEN
+        NEW.overdue := TRUE;
+    ELSE
+        NEW.overdue := FALSE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- Trigger
+CREATE TRIGGER trigger_check_task_due_date
+BEFORE UPDATE ON Tasks
+FOR EACH ROW
+EXECUTE FUNCTION check_task_due_date();
+
+-- Trigger2: Updating the number of tasks for each project
+-- Trigger Function
+CREATE OR REPLACE FUNCTION increment_task_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Increment the number of tasks in the associated project
+    UPDATE Projects SET number_of_tasks = number_of_tasks + 1 WHERE project_id = NEW.project_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- Create the Trigger
+CREATE TRIGGER trigger_increment_task_count
+AFTER INSERT ON Tasks
+FOR EACH ROW
+EXECUTE FUNCTION increment_task_count();
+
+-- Trigger 3: Log Task Assignment Changes
+-- Trigger Function
+CREATE OR REPLACE FUNCTION log_task_assignment_change()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.assigned_to IS DISTINCT FROM OLD.assigned_to THEN
+        NEW.last_assigned_to := OLD.assigned_to;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- Trigger
+CREATE TRIGGER trigger_log_task_assignment_change
+BEFORE UPDATE ON Tasks
+FOR EACH ROW
+EXECUTE FUNCTION log_task_assignment_change();
+
