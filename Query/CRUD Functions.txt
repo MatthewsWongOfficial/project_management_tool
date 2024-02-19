@@ -1,0 +1,132 @@
+-- Users Table CRUD Functions
+
+--Create User
+CREATE OR REPLACE FUNCTION create_user(_username VARCHAR, _email VARCHAR, _password VARCHAR)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO Users (username, email, password) VALUES (_username, _email, _password);
+END;
+$$ LANGUAGE plpgsql;
+
+--Read Users
+CREATE OR REPLACE FUNCTION read_user(_user_id INT)
+RETURNS TABLE(user_id INT, username VARCHAR, email VARCHAR, created_at TIMESTAMP) AS $$
+BEGIN
+    RETURN QUERY SELECT Users.user_id, Users.username, Users.email, Users.created_at FROM Users WHERE Users.user_id = _user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Update User 
+CREATE OR REPLACE FUNCTION update_user(_user_id INT, _username VARCHAR, _email VARCHAR, _password VARCHAR)
+RETURNS void AS $$
+BEGIN
+    UPDATE Users SET username = _username, email = _email, password = _password WHERE user_id = _user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Delete User 
+CREATE OR REPLACE FUNCTION delete_user(_user_id INT)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM Users WHERE user_id = _user_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Projects Table CRUD Functions
+--Create Project
+CREATE OR REPLACE FUNCTION create_project(_project_name VARCHAR, _start_date DATE, _end_date DATE, _manager_id INT)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO Projects (project_name, start_date, end_date, manager_id) VALUES (_project_name, _start_date, _end_date, _manager_id);
+END;
+$$ LANGUAGE plpgsql;
+
+--Read Project
+CREATE OR REPLACE FUNCTION read_project(_project_id INT)
+RETURNS TABLE(project_id INT, project_name VARCHAR, start_date DATE, end_date DATE, manager_id INT) AS $$
+BEGIN
+    RETURN QUERY SELECT project_id, project_name, start_date, end_date, manager_id FROM Projects WHERE project_id = _project_id;
+END;
+$$ LANGUAGE plpgsql;
+ss
+--Update Project 
+CREATE OR REPLACE FUNCTION update_project(_project_id INT, _project_name VARCHAR, _start_date DATE, _end_date DATE, _manager_id INT)
+RETURNS void AS $$
+BEGIN
+    UPDATE Projects SET project_name = _project_name, start_date = _start_date, end_date = _end_date, manager_id = _manager_id WHERE project_id = _project_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Delete Project 
+CREATE OR REPLACE FUNCTION delete_project(_project_id INT)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM Projects WHERE project_id = _project_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Tasks Table CRUD Functions
+--Create Task
+CREATE OR REPLACE FUNCTION create_task(_task_name VARCHAR, _project_id INT, _assigned_to INT, _due_date DATE, _status VARCHAR)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO Tasks (task_name, project_id, assigned_to, due_date, status) VALUES (_task_name, _project_id, _assigned_to, _due_date, _status);
+END;
+$$ LANGUAGE plpgsql;
+
+--Read Tasks
+CREATE OR REPLACE FUNCTION read_task(_task_id INT)
+RETURNS TABLE(task_id INT, task_name VARCHAR, project_id INT, assigned_to INT, due_date DATE, status VARCHAR) AS $$
+BEGIN
+    RETURN QUERY SELECT Tasks.task_id, Tasks.task_name, Tasks.project_id, Tasks.assigned_to, Tasks.due_date, Tasks.status FROM Tasks WHERE Tasks.task_id = _task_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Update Task
+CREATE OR REPLACE FUNCTION update_task(_task_id INT, _task_name VARCHAR, _project_id INT, _assigned_to INT, _due_date DATE, _status VARCHAR)
+RETURNS void AS $$
+BEGIN
+    UPDATE Tasks SET task_name = _task_name, project_id = _project_id, assigned_to = _assigned_to, due_date = _due_date, status = _status WHERE task_id = _task_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Delete Task 
+CREATE OR REPLACE FUNCTION delete_task(_task_id INT)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM Tasks WHERE task_id = _task_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Teams Table CRUD Functions
+--Create team 
+CREATE OR REPLACE FUNCTION create_team(_team_name VARCHAR, _lead_id INT)
+RETURNS void AS $$
+BEGIN
+    INSERT INTO Teams (team_name, lead_id) VALUES (_team_name, _lead_id);
+END;
+$$ LANGUAGE plpgsql;
+
+--Read Team
+CREATE OR REPLACE FUNCTION read_team(_team_id INT)
+RETURNS TABLE(team_id INT, team_name VARCHAR, lead_id INT) AS $$
+BEGIN
+    RETURN QUERY SELECT Teams.team_id, Teams.team_name, Teams.lead_id FROM Teams WHERE Teams.team_id = _team_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Update Team 
+CREATE OR REPLACE FUNCTION update_team(_team_id INT, _team_name VARCHAR, _lead_id INT)
+RETURNS void AS $$
+BEGIN
+    UPDATE Teams SET team_name = _team_name, lead_id = _lead_id WHERE team_id = _team_id;
+END;
+$$ LANGUAGE plpgsql;
+
+--Delete Team
+CREATE OR REPLACE FUNCTION delete_team(_team_id INT)
+RETURNS void AS $$
+BEGIN
+    DELETE FROM Teams WHERE team_id = _team_id;
+END;
+$$ LANGUAGE plpgsql;

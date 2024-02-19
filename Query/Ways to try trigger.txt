@@ -1,0 +1,10 @@
+--Test the overdue trigger 
+SELECT task_id, due_date, status, overdue FROM Tasks WHERE task_id = 9;
+
+--Test the last assigned (Log Task Assignment Changes)
+SELECT task_id, assigned_to, last_assigned_to FROM Tasks WHERE task_id = 9;
+
+--Test the number of task for each project
+SELECT project_id, project_name, number_of_tasks FROM Projects WHERE project_id = 20;
+
+

@@ -1,0 +1,66 @@
+--Trigger 1: Auto-Update Task Status on Due Date
+--Trigger Function
+CREATE OR REPLACE FUNCTION check_task_due_date()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.due_date < CURRENT_DATE AND NEW.status != 'Completed' THEN
+        NEW.overdue := TRUE;
+    ELSE
+        NEW.overdue := FALSE;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+--Trigger
+CREATE TRIGGER trigger_check_task_due_date
+BEFORE UPDATE ON Tasks
+FOR EACH ROW
+EXECUTE FUNCTION check_task_due_date();
+
+
+
+--Trigger2 : Updating the number of task for each project 
+--Trigger Function
+CREATE OR REPLACE FUNCTION increment_task_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Increment the number of tasks in the associated project
+    UPDATE Projects SET number_of_tasks = number_of_tasks + 1 WHERE project_id = NEW.project_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+-- Create the Trigger
+CREATE TRIGGER trigger_increment_task_count
+AFTER INSERT ON Tasks
+FOR EACH ROW
+EXECUTE FUNCTION increment_task_count();
+
+
+
+--Trigger 3: Log Task Assignment Changes
+--Trigger Function
+CREATE OR REPLACE FUNCTION log_task_assignment_change()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.assigned_to IS DISTINCT FROM OLD.assigned_to THEN
+        NEW.last_assigned_to := OLD.assigned_to;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+--Trigger
+CREATE TRIGGER trigger_log_task_assignment_change
+BEFORE UPDATE ON Tasks
+FOR EACH ROW
+EXECUTE FUNCTION log_task_assignment_change();
+
+
+
+
+
+
+
+
+
+
+
