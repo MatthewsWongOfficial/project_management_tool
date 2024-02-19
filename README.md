@@ -6,7 +6,7 @@ This project is a PHP website integrated with PostgreSQL, serving as a project m
 
 ## ERD
 
-You can find the Entity-Relationship Diagram (ERD) of the project [here](https://github.com/MatthewsWongOfficial/project_management_tool/blob/main/Project%20Management%20Tool%20ERD%20-%20Matthews%20Wong.drawio%20(1).png?raw=true).
+![ERD](https://github.com/MatthewsWongOfficial/project_management_tool/blob/main/Project%20Management%20Tool%20ERD%20-%20Matthews%20Wong.drawio%20(1).png?raw=true)
 
 ## DDL Query of creating tables
 
